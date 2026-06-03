@@ -6,16 +6,13 @@ import io.cucumber.java.en.And;
 import io.cucumber.java.en.Given;
 import io.cucumber.java.en.Then;
 import io.cucumber.java.en.When;
-import net.serenitybdd.annotations.DefaultUrl;
-import net.serenitybdd.annotations.Steps;
 import org.assertj.core.api.Assertions;
 
 public class LoginSteps {
 
-    @Steps
+    // Page Objects: inyección automática por Serenity (sin @Steps)
     private LoginPage loginPage;
 
-    @Steps
     private InventoryPage inventoryPage;
 
     @Given("el usuario navega a la página de login de SauceDemo")

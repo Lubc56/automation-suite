@@ -7,18 +7,15 @@ import io.cucumber.java.en.And;
 import io.cucumber.java.en.Given;
 import io.cucumber.java.en.Then;
 import io.cucumber.java.en.When;
-import net.serenitybdd.annotations.Steps;
 import org.assertj.core.api.Assertions;
 
 public class ProductSteps {
 
-    @Steps
+    // Page Objects: inyección automática por Serenity (sin @Steps)
     private LoginPage loginPage;
 
-    @Steps
     private InventoryPage inventoryPage;
 
-    @Steps
     private ProductDetailPage productDetailPage;
 
     @Given("el usuario está autenticado en SauceDemo")
