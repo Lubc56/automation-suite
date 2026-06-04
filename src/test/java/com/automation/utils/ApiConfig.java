@@ -24,8 +24,4 @@ public class ApiConfig {
 
         RestAssured.requestSpecification = requestSpec;
     }
-
-    public static RequestSpecification getRequestSpec() {
-        return requestSpec;
-    }
 }

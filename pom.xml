@@ -102,6 +102,15 @@
             <version>${junit.platform.version}</version>
         </dependency>
 
+        <!-- JUnit 4 requerido por SerenityReporterParallel para procesar
+             Scenario Outline / Examples (usa ParentRunner internamente) -->
+        <dependency>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
+            <version>4.13.2</version>
+            <scope>test</scope>
+        </dependency>
+
         <!-- Lombok -->
         <dependency>
             <groupId>org.projectlombok</groupId>
@@ -140,17 +149,28 @@
                 <artifactId>maven-failsafe-plugin</artifactId>
                 <version>3.2.5</version>
                 <configuration>
+                    <!-- Solo los runners individuales: MasterRunner se usa manualmente -->
                     <includes>
-                        <include>**/*Runner*.java</include>
+                        <include>**/runners/LoginRunner.java</include>
+                        <include>**/runners/ProductRunner.java</include>
+                        <include>**/runners/PetstoreRunner.java</include>
                     </includes>
-                    <parallel>classes</parallel>
-                    <threadCount>2</threadCount>
-                    <forkCount>2</forkCount>
-                    <reuseForks>true</reuseForks>
+                    <!-- Un fork por runner, sin reutilización: evita contaminación
+                         de contexto Serenity entre suites distintas -->
+                    <forkCount>1</forkCount>
+                    <reuseForks>false</reuseForks>
                     <systemPropertyVariables>
                         <webdriver.driver>chrome</webdriver.driver>
                         <webdriver.chrome.driver></webdriver.chrome.driver>
                     </systemPropertyVariables>
+                    <!-- Necesario para Java 9+: ByteBuddy (usado por Serenity REST)
+                         requiere acceso reflectivo a módulos internos de la JVM -->
+                    <argLine>
+                        --add-opens java.base/java.lang=ALL-UNNAMED
+                        --add-opens java.base/java.lang.reflect=ALL-UNNAMED
+                        --add-opens java.base/java.util=ALL-UNNAMED
+                        --add-opens java.base/java.io=ALL-UNNAMED
+                    </argLine>
                 </configuration>
                 <executions>
                     <execution>
@@ -181,6 +201,34 @@
                         <goals>
                             <goal>aggregate</goal>
                         </goals>
+                    </execution>
+                </executions>
+            </plugin>
+
+            <!-- Limpia target/site/serenity antes de cada ejecución
+                 para evitar JSONs de corridas anteriores en el reporte -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-clean-plugin</artifactId>
+                <version>3.3.2</version>
+                <executions>
+                    <execution>
+                        <id>clean-serenity-output</id>
+                        <phase>pre-integration-test</phase>
+                        <goals>
+                            <goal>clean</goal>
+                        </goals>
+                        <configuration>
+                            <excludeDefaultDirectories>true</excludeDefaultDirectories>
+                            <filesets>
+                                <fileset>
+                                    <directory>${project.build.directory}/site/serenity</directory>
+                                </fileset>
+                                <fileset>
+                                    <directory>${project.build.directory}/serenity-reports</directory>
+                                </fileset>
+                            </filesets>
+                        </configuration>
                     </execution>
                 </executions>
             </plugin>
